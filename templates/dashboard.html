@@ -1,0 +1,26 @@
+{% extends 'includes/include.html' %}
+{% block content %}
+{% include 'includes/sidebar.html' %}
+<div class="dashboardContainer">
+    <h3>Selamat Datang di Halaman Admin</h3>
+    <div class="cards">
+        <div class="card">
+            <h5>Tamu hari ini</h5>
+            <h2>{{total_hari_ini}}</h2>
+        </div>
+        <div class="card">
+            <h5>Tamu minggu ini</h5>
+            <h2>{{total_minggu_ini}}</h2>
+        </div>
+        <div class="card">
+            <h5>Tamu bulan ini</h5>
+            <h2>{{total_bulan_ini}}</h2>
+        </div>
+        <div class="card">
+            <h5>Total tamu</h5>
+            <h2>{{total_tamu}}</h2>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

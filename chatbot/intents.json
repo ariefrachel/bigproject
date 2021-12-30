@@ -1,0 +1,114 @@
+{
+    "intents": [{
+            "tag": "greetings",
+            "patterns": [""],
+            "responses": ["Maaf Saya tidak paham, tolong tanyakan seputar aplikasi ini"],
+            "context": [""]
+        },
+        {
+            "tag": "aplikasi",
+            "patterns": ["ini"],
+            "responses": ["ini merupakan aplikasi pengenalan wajah atau face recognition, untuk mengenali mana yang tamu mana yang karyawan/anggota."],
+            "context": [""]
+        },
+        {
+            "tag": "tujuan",
+            "patterns": ["tujuannya", "tujuan"],
+            "responses": ["Tujuan aplikasi ini adalah untuk melakukan check in untuk tamu, dimana jika tamu yang terdeteksi fitur pemindai wajah maka tamu diminta untuk mengisi daftar tamu."],
+            "context": [""]
+        },
+        {
+            "tag": "Kelompok",
+            "patterns": ["anggota", "anggotanya", "berangotakan", "siapa"],
+            "responses": ["Beranggotakan \n 1. Arief Rahman \n 2. Adi Sangjaya \n 3. Efendi Kisnoto \n 4. Doni Cahya"],
+            "context": [""]
+        },
+        {
+            "tag": "wajah",
+            "patterns": ["pengenalan wajah", "face recognition"],
+            "responses": ["Pengenalan wajah (face recognition) yaitu proses membandingkan sebuah citra wajah dengan basis data wajah dan menemukan basis data wajah yang paling cocok dengan citra masukan tersebut."],
+            "context": [""]
+        },
+        {
+            "tag": "algoritma",
+            "patterns": ["algoritma"],
+            "responses": ["Aplikasi ini mengunakan algoritma Support Vector Machine (SVM), Support Vector Machine (SVM) merupakan salah satu metode dalam supervised learning  yang biasanya digunakan untuk klasifikasi (seperti Support Vector Classification) dan regresi (Support Vector Regression). Dalam pemodelan klasifikasi, SVM memiliki konsep yang lebih matang dan lebih jelas secara matematis dibandingkan dengan teknik-teknik klasifikasi lainnya. SVM juga dapat mengatasi masalah klasifikasi dan regresi dengan linear maupun non linear"],
+            "context": [""]
+        },
+        {
+            "tag": "model",
+            "patterns": ["model", "training"],
+            "responses": ["Aplikasi ini mengunakan training/model TensorFlow, TensorFlow adalah pustaka perangkat lunak sumber terbuka dan gratis untuk pemelajaran mesin. Pustaka ini dapat digunakan untuk berbagai keperluan, tetapi memiliki fokus khusus pada pelatihan dan inferensi jaringan saraf dalam (Deep neural networks)."],
+            "context": [""]
+        },
+        {
+            "tag": "Selamat Pagi",
+            "patterns": ["Pagi","pagi"],
+            "responses": ["Selamat Pagi, ada yang bisa saya bantu?"],
+            "context": [""]
+        },
+        {
+            "tag": "Selamat Siang",
+            "patterns": ["Siang","siang"],
+            "responses": ["Selamat Siang, ada yang bisa saya bantu?"],
+            "context": [""]
+        },
+        {
+            "tag": "Selamat Sore",
+            "patterns": ["Sore","sore"],
+            "responses": ["Selamat Sore, ada yang bisa saya bantu?"],
+            "context": [""]
+        },
+        {
+            "tag": "Selamat Malam",
+            "patterns": ["Malam","malam","Malem","malem"],
+            "responses": ["Selamat Malam, ada yang bisa saya bantu?"],
+            "context": [""]
+        },
+        {
+            "tag": "Halo",
+            "patterns": ["Halo","Hai"],
+            "responses": ["Halo, ada yang bisa saya bantu?", "Hai, ada yang bisa saya bantu"],
+            "context": [""]
+        },
+        {
+            "tag": "terima kasih",
+            "patterns": ["terima kasih"],
+            "responses": ["Sama - Sama"],
+            "context": [""]
+        },
+        {
+            "tag": "a1",
+            "patterns": ["mabok"],
+            "responses": ["hayukkk"],
+            "context": [""]
+        },
+        {
+            "tag": "a2",
+            "patterns": ["Sehat"],
+            "responses": ["Alhamdulilah, Sehat"],
+            "context": [""]
+        },
+        {
+            "tag": "a3",
+            "patterns": ["jelek"],
+            "responses": ["bacod lu"],
+            "context": [""]
+        },
+        {
+            "tag": "a4",
+            "patterns": ["pacar"],
+            "responses": ["yahaha jomblo ya?"],
+            "context": [""]
+        },
+        {
+            "tag": "a5",
+            "patterns": ["lagu"],
+            "responses": ["fear and loathing in las vegas"],
+            "context": [""]
+        }
+
+
+
+    ]
+}

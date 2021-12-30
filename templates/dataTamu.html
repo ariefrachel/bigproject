@@ -1,0 +1,72 @@
+{% extends 'includes/include.html' %}
+{% block content %}
+
+<head>
+    <link rel="stylesheet" href="../../static/css/dataset.css">
+
+</head>
+{% include "includes/sidebar.html" %}
+<div class="row dataset">
+    <div class="col-lg-8">
+        <h3 style="color:#333;margin-left:260px;margin-top:40px;font-weight:500">Daftar Tamu</h3>
+        <hr>
+        <h4 style="color:#333;margin-left:260px;margin-top:15px;">Hari Ini</h4>
+        <table style="margin-left:260px;margin-top:20px" class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Tanggal</th>
+                    <th scope="col">Waktu</th>
+                    <th scope="col">Nama Lengkap</th>
+                    <th scope="col">No. Telepon</th>
+                    <th scope="col">Keperluan</th>
+                    <th scope="col">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in tamu_hari_ini %}
+                <tr>
+                    <th scope="row">{{data.tanggal}}</th>
+                    <th scope="row">{{data.waktu}}</th>
+                    <td>{{data.nama_lengkap}}</td>
+                    <td>{{data.no_telp}}</td>
+                    <td>{{data.keperluan}}</td>
+                    <td width="100">
+                        <a href="/hapusTamu/{{data.id}}">
+                            <i style="font-size:16px" class="fa fa-trash text-danger" aria-hidden="true"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <hr>
+        <table style="margin-left:260px;margin-top:20px" class="table table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Tanggal</th>
+                    <th scope="col">Waktu</th>
+                    <th scope="col">Nama Lengkap</th>
+                    <th scope="col">No. Telepon</th>
+                    <th scope="col">Keperluan</th>
+                    <th scope="col">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in total_daftar_tamu %}
+                <tr>
+                    <th scope="row">{{data.tanggal}}</th>
+                    <th scope="row">{{data.waktu}}</th>
+                    <td>{{data.nama_lengkap}}</td>
+                    <td>{{data.no_telp}}</td>
+                    <td>{{data.keperluan}}</td>
+                    <td width="100">
+                        <a href="/hapusTamu/{{data.id}}">
+                            <i style="font-size:16px" class="fa fa-trash text-danger" aria-hidden="true"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

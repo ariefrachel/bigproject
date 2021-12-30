@@ -1,0 +1,16 @@
+{% block content %}
+
+<head>
+    <link rel="stylesheet" href="../../static/css/dataset.css">
+</head>
+{% include "includes/sidebar.html" %}
+
+<center>
+    <div class="col-lg-6" style="margin-left:170px;margin-top:60px">
+        <div class="darman" style="width:700px;height:500px;background:#fff;border-radius: 12px;">
+            <img id="cam" src="{{ url_for('rekam') }}" width="650px" height="450px" style="border-radius:12px">
+        </div>
+    </div>
+</center>
+
+{% endblock %}

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/chatbot.css')}}" />
+  <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css.css')}}" /> -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <div class="bg"></div>
+  <section class="msger">
+    <header class="msger-header">
+      <div class="msger-header-title">
+        <i class="fas fa-bug"></i>Chatbot<i class="fas fa-bug"></i>
+      </div>
+    </header>
+
+    <main class="msger-chat" style="background-image: url(../../static/images/bg3.png)">
+      <div class="msg left-msg">
+        <div class="msg-img" style="background-image: url(../../static/images/sampah.png)"></div>
+
+        <div class="msg-bubble" id="msg-bubble">
+
+          <div class="msg-text botText">
+            Hai, Selamat Datang ada yang bisa saya bantu?
+          </div>
+        </div>
+      </div>
+    </main>
+    <form class="msger-inputarea" id="userInput">
+      <input type="text" class="msger-input" id="text" placeholder="Ketikkan Pesan...">
+      <button type="submit" id="send" class="msger-send-btn">Kirim</button>
+    </form>
+  </section>
+  <script>
+    $(document).ready(function () {
+      $("form").on("submit", function (event) {
+        var rawText = $("#text").val();
+        var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
+        $("#text").val("");
+        $("#msg-bubble").append(userHtml);
+        document.getElementById("userInput").scrollIntoView({
+          block: "start",
+          behavior: "smooth",
+        });
+        $.ajax({
+          data: {
+            msg: rawText,
+          },
+          type: "POST",
+          url: "/get",
+        }).done(function (data) {
+          var botHtml = '<p class="botText"><span>' + data + "</span></p>";
+          $("#msg-bubble").append($.parseHTML(botHtml));
+          document.getElementById("userInput").scrollIntoView({
+            block: "start",
+            behavior: "smooth",
+          });
+        });
+        event.preventDefault();
+      });
+    });
+  </script>
+</body>
+
+</html>
