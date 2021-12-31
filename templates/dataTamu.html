@@ -1,72 +1,103 @@
-{% extends 'includes/include.html' %}
 {% block content %}
 
-<head>
-    <link rel="stylesheet" href="../../static/css/dataset.css">
 
-</head>
 {% include "includes/sidebar.html" %}
-<div class="row dataset">
-    <div class="col-lg-8">
-        <h3 style="color:#333;margin-left:260px;margin-top:40px;font-weight:500">Daftar Tamu</h3>
-        <hr>
-        <h4 style="color:#333;margin-left:260px;margin-top:15px;">Hari Ini</h4>
-        <table style="margin-left:260px;margin-top:20px" class="table table-striped">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Tanggal</th>
-                    <th scope="col">Waktu</th>
-                    <th scope="col">Nama Lengkap</th>
-                    <th scope="col">No. Telepon</th>
-                    <th scope="col">Keperluan</th>
-                    <th scope="col">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for data in tamu_hari_ini %}
-                <tr>
-                    <th scope="row">{{data.tanggal}}</th>
-                    <th scope="row">{{data.waktu}}</th>
-                    <td>{{data.nama_lengkap}}</td>
-                    <td>{{data.no_telp}}</td>
-                    <td>{{data.keperluan}}</td>
-                    <td width="100">
-                        <a href="/hapusTamu/{{data.id}}">
-                            <i style="font-size:16px" class="fa fa-trash text-danger" aria-hidden="true"></i></a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <hr>
-        <table style="margin-left:260px;margin-top:20px" class="table table-striped">
-            <thead class="thead-light">
-                <tr>
-                    <th scope="col">Tanggal</th>
-                    <th scope="col">Waktu</th>
-                    <th scope="col">Nama Lengkap</th>
-                    <th scope="col">No. Telepon</th>
-                    <th scope="col">Keperluan</th>
-                    <th scope="col">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for data in total_daftar_tamu %}
-                <tr>
-                    <th scope="row">{{data.tanggal}}</th>
-                    <th scope="row">{{data.waktu}}</th>
-                    <td>{{data.nama_lengkap}}</td>
-                    <td>{{data.no_telp}}</td>
-                    <td>{{data.keperluan}}</td>
-                    <td width="100">
-                        <a href="/hapusTamu/{{data.id}}">
-                            <i style="font-size:16px" class="fa fa-trash text-danger" aria-hidden="true"></i></a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
 {% endblock %}
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Python Flask Date Range Search with jQuery Ajax DatePicker MySQL Database</title>
+    <link rel="stylesheet" href="../../static/css/dataset.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" />
+    <link href='https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css' rel='stylesheet' type='text/css'>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+</head>
+
+<body>
+    <br />
+    <div class="container">
+        <div class="daftarTamu">
+            <h2>Daftar Tamu</h2>
+            <br />
+            <div class="col-md-2">
+                <input type="text" name="From" id="From" class="form-control" placeholder="Dari Tanggal" />
+            </div>
+            <div class="col-md-2">
+                <input type="text" name="to" id="to" class="form-control" placeholder="Ke Tanggal" />
+            </div>
+            <div class="col-md-8">
+                <input type="button" name="range" id="range" value="Filter" class="btn btn-warning" />
+            </div>
+            <div class="clearfix"></div>
+            <br />
+            <div id="filter_tanggal">
+                <table id='empTable' class="table table-striped display dataTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th width="5%">Tanggal</th>
+                            <th width="5%">Waktu</th>
+                            <th width="20%">Nama Lengkap</th>
+                            <th width="20%">Instansi</th>
+                            <th width="18%">No.Telepon</th>
+                            <th width="30%">Keperluan</th>
+                            <th width="2%">Aksi</th>
+                        </tr>
+                    </thead>
+                    {% for row in totalTamu %}
+                    <tr>
+                        <td>{{row.tanggal}}</td>
+                        <td>{{row.waktu}}</td>
+                        <td>{{row.nama_lengkap}}</td>
+                        <td>{{row.instansi}}</td>
+                        <td>{{row.no_telp}}</td>
+                        <td>{{row.keperluan}}</td>
+                        <td width="100">
+                            <a href="/hapusTamu/{{row.id}}"><i style="font-size:16px" class="fa fa-trash text-danger"
+                                    aria-hidden="true"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Script -->
+    <script>
+        $(document).ready(function () {
+            $.datepicker.setDefaults({
+                dateFormat: 'yy-mm-dd'
+            });
+            $(function () {
+                $("#From").datepicker();
+                $("#to").datepicker();
+            });
+            $('#range').click(function () {
+                var From = $('#From').val();
+                var to = $('#to').val();
+                if (From != '' && to != '') {
+                    $.ajax({
+                        url: "/range",
+                        method: "POST",
+                        data: {
+                            From: From,
+                            to: to
+                        },
+                        success: function (data) {
+                            $('#filter_tanggal').html(data);
+                            $('#filter_tanggal').append(data.htmlresponse);
+                        }
+                    });
+                } else {
+                    alert("Mohon Pilih Tanggal");
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,68 +1,104 @@
-{%block content%}
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        div {
-            width: 400px;
-            height: 130px;
-            border: 2px solid black;
-            padding: 15px;
-            position: absolute;
-            left: 27%;
-        }
-    </style>
+    <title>DataTable AJAX pagination using Python Flask and Mysql database</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <link href='https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css' rel='stylesheet' type='text/css'>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 </head>
 
 <body>
-    <center>
-        <h1 style="color:green;padding:13px;">
-            GeeksforGeeks
-        </h1>
-        <h3>
-            Force input field to take only numbers as an input
-        </h3>
-    </center>
-
     <div class="container">
-        <form name="inputnumber" autocomplete="off">
-            <b>Register No:</b>
-            <input type="text" onkeypress="return onlyNumberKey(event)" maxlength="11" size="50%" />
+        <div class="row" style="padding:50px;">
+            <p>
+                <h1>DataTable AJAX pagination using Python Flask and Mysql database</h1>
+            </p>
+            <div>
+                <table id='empTable' class='display dataTable' width='100%'>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Waktu</th>
+                            <th>Nama Lengkap</th>
+                            <th>Instansi</th>
+                            <th>No Telepon</th>
+                            <th>Keperluan</th>
+                        </tr>
+                    </thead>
 
-            <br>
-            <br>
-            <b>Ph. Number:</b>
-            <input type="tel" size="50%" onkeypress="return onlyNumberKey(event)" />
-
-            <br>
-            <br>
-            <center>
-                <b>Age:</b>
-                <input type="number" placeholder=" Only 12+ allowed" min="12" />
-                <input type="submit" value="Submit" onclick="return detailssubmit()">
-            </center>
-        </form>
+                </table>
+            </div>
+        </div>
     </div>
-</body>
-<script>
-    function onlyNumberKey(evt) {
+    <script>
+        $(document).ready(function () {
 
-        // Only ASCII character in that range allowed
-        var ASCIICode = (evt.which) ? evt.which : evt.keyCode
-        if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57))
-            return false;
-        return true;
-    }
-</script>
-<script>
-    function detailssubmit() {
-        alert("Your details were Submitted");
-    }
-</script>
+            $(document).ready(function () {
+                $.datepicker.setDefaults({
+                    dateFormat: 'yy-mm-dd'
+                });
+                $(function () {
+                    $("#From").datepicker();
+                    $("#to").datepicker();
+                });
+                $('#range').click(function () {
+                    var From = $('#From').val();
+                    var to = $('#to').val();
+                    if (From != '' && to != '') {
+                        $.ajax({
+                            url: "/range",
+                            method: "POST",
+                            data: {
+                                From: From,
+                                to: to
+                            },
+                            success: function (data) {
+                                $('#filter_tanggal').html(data);
+                                $('#filter_tanggal').append(data.htmlresponse);
+                            }
+                        });
+                    } else {
+                        alert("Mohon Pilih Tanggal");
+                    }
+                });
+            });
+
+            var empDataTable = $('#empTable').DataTable({
+                'processing': true,
+                'serverSide': true,
+                'serverMethod': 'post',
+                'ajax': {
+                    'url': '/ajaxfile'
+                },
+                'lengthMenu': [
+                    [5, 10, 25, 50, -1],
+                    [5, 10, 25, 50, "All"]
+                ],
+                searching: true,
+                sort: false,
+                "serverSide": true,
+                'columns': [{
+                        data: 'tanggal'
+                    }, {
+                        data: 'waktu'
+                    }, {
+                        data: 'nama_lengkap'
+                    },
+                    {
+                        data: 'instansi'
+                    },
+                    {
+                        data: 'no_telp'
+                    },
+                    {
+                        data: 'keperluan'
+                    },
+                ]
+            });
+        });
+    </script>
+</body>
 
 </html>
-
-{% endblock %}

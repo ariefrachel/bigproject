@@ -1,0 +1,22 @@
+        <table class="table table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th width="5%">Tanggal</th>
+                    <th width="5%">Waktu</th>
+                    <th width="20%">Nama Lengkap</th>
+                    <th width="20%">Instansi</th>
+                    <th width="20%">No.Telepon</th>
+                    <th width="30%">Keperluan</th>
+                </tr>
+            </thead>
+            {% for row in tgl %}
+            <tr>
+                <td>{{row.tanggal}}</td>
+                <td>{{row.waktu}}</td>
+                <td>{{row.nama_lengkap}}</td>
+                <td>{{row.instansi}}</td>
+                <td>{{row.no_telp}}</td>
+                <td>{{row.keperluan}}</td>
+            </tr>
+            {% endfor %}
+        </table>

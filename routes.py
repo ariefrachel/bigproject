@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, request, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, request, flash,  jsonify
 from flask_mysqldb import MySQL, MySQLdb
 import bcrypt
 import werkzeug
@@ -37,8 +37,11 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
-app.config["TEMPLATES_AUTO_RELOAD"] = True
-app.config['UPLOAD_FOLDER'] = 'pre_img/'
+# app.config["TEMPLATES_AUTO_RELOAD"] = True
+# app.config['UPLOAD_FOLDER'] = 'pre_img/'
+
+PATH = '\\'.join(os.path.abspath(__file__).split('\\')[0:-1])
+DATASET_PATH = os.path.join(PATH, "pre_img")
 
 @app.route('/')
 def home():
@@ -99,6 +102,34 @@ def isiTamu():
             return render_template("modal.html")
             
     return render_template("formTamu.html")      
+
+
+@app.route("/face_registration")
+def face_registration():
+    return render_template("face_registration.html")
+
+@app.route("/uploadFoto", methods=['POST'])
+def uploadFoto():
+    class_name = request.args.get('class_name')
+    path_new_class = os.path.join(DATASET_PATH, class_name)
+
+    # create directory label if not exist
+    if not os.path.exists(path_new_class):
+        os.mkdir(path_new_class) 
+
+    # save uploaded image
+    filename = class_name + '%04d.jpg' % (len(os.listdir(path_new_class)) + 1) 
+    file = request.files['webcam']
+    file.save(os.path.join(path_new_class, filename))
+
+    # resize
+    img = cv2.imread(os.path.join(path_new_class, filename))
+    img = cv2.resize(img, (250, 250))
+    cv2.imwrite(os.path.join(path_new_class, filename), img)
+
+    return '', 200
+
+
 
 @app.route('/daftarKaryawan', methods=["POST", "GET"])
 def daftarKaryawan():
@@ -217,25 +248,90 @@ def dashboard():
     total_tamu = totalTamu()
     return render_template('dashboard.html', total_hari_ini=total_hari_ini, total_minggu_ini=total_minggu_ini, total_bulan_ini=total_bulan_ini, total_tamu=total_tamu)
 
-@app.route('/daftarTamuHari')
-def daftarTamuHari():
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute('SELECT * FROM daftarTamu WHERE tanggal = CURDATE()')
-    tamu_hari_ini = cur.fetchall()
-    return tamu_hari_ini
-
-@app.route('/daftarTotalTamu')
-def daftarTotalTamu():
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute('SELECT * FROM daftarTamu')
-    total_daftar_tamu = cur.fetchall()
-    return total_daftar_tamu
-
-@app.route('/tabelTamu')
+@app.route('/tabelTamu',methods=["POST", "GET"])
 def tabelTamu():
-    tamu_hari_ini = daftarTamuHari()
-    total_daftar_tamu = daftarTotalTamu()
-    return render_template('dataTamu.html', tamu_hari_ini = tamu_hari_ini, total_daftar_tamu = total_daftar_tamu)
+    cursor = mysql.connection.cursor()
+    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute("SELECT * FROM daftarTamu ORDER BY id desc")
+    totalTamu = cur.fetchall()
+    return render_template('dataTamu.html', totalTamu=totalTamu)
+
+@app.route('/warayah')
+def warayah():
+    return render_template('warayah.html')
+
+@app.route("/ajaxfile",methods=["POST","GET"])
+def ajaxfile():
+    try:
+        conn = mysql.connection.cursor()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        if request.method == 'POST':
+            draw = request.form['draw'] 
+            row = int(request.form['start'])
+            rowperpage = int(request.form['length'])
+            searchValue = request.form["search[value]"]
+            print(draw)
+            print(row)
+            print(rowperpage)
+            print(searchValue)
+ 
+            ## Total number of records without filtering
+            cursor.execute("select count(*) as allcount from daftarTamu")
+            rsallcount = cursor.fetchone()
+            totalRecords = rsallcount['allcount']
+            print(totalRecords) 
+ 
+            ## Total number of records with filtering
+            likeString = "%" + searchValue +"%"
+            cursor.execute("SELECT count(*) as allcount from daftarTamu WHERE nama_lengkap LIKE %s OR instansi LIKE %s OR no_telp LIKE %s", (likeString, likeString, likeString))
+            rsallcount = cursor.fetchone()
+            totalRecordwithFilter = rsallcount['allcount']
+            print(totalRecordwithFilter) 
+ 
+            ## Fetch records
+            if searchValue=='':
+                cursor.execute("SELECT * FROM daftarTamu ORDER BY nama_lengkap asc limit %s, %s;", (row, rowperpage))
+                employeelist = cursor.fetchall()
+            else:        
+                cursor.execute("SELECT * FROM daftarTamu WHERE nama_lengkap LIKE %s OR instansi LIKE %s OR no_telp LIKE %s limit %s, %s;", (likeString, likeString, likeString, row, rowperpage))
+                employeelist = cursor.fetchall()
+ 
+            data = []
+            for row in employeelist:
+                data.append({
+                    'tanggal': row['tanggal'],
+                    'nama_lengkap': row['nama_lengkap'],
+                    'instansi': row['instansi'],
+                    'no_telp': row['no_telp'],
+                    'keperluan': row['keperluan'],
+                })
+ 
+            response = {
+                'draw': draw,
+                'iTotalRecords': totalRecords,
+                'iTotalDisplayRecords': totalRecordwithFilter,
+                'aaData': data,
+            }
+            return jsonify(response)
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close() 
+        conn.close()
+
+@app.route("/range",methods=["POST","GET"])
+def range(): 
+    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor) 
+    if request.method == 'POST':
+        From = request.form['From']
+        to = request.form['to']
+        print(From)
+        print(to)
+        query = "SELECT * from daftarTamu WHERE tanggal BETWEEN '{}' AND '{}'".format(From,to)
+        cur.execute(query)
+        tgl = cur.fetchall()
+    return jsonify({'htmlresponse': render_template('responDataTamu.html', tgl=tgl)})
+
 
 @app.route('/hapusTamu/<string:id>', methods = ['POST','GET'])
 def hapusTamu(id):
@@ -274,8 +370,8 @@ def gen_frames():
         image_size = 182
         input_image_size = 160
         
-        HumanNames = "os.listdir(pre_img)"
-        #HumanNames.sort()
+        HumanNames = os.listdir(train_img)
+        HumanNames.sort()
 
         print('Loading Modal')
         facenet.load_model(modeldir)
