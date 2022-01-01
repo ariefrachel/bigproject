@@ -1,16 +1,36 @@
+{% extends 'includes/include.html' %}
 {% block content %}
 
 <head>
     <link rel="stylesheet" href="../../static/css/dataset.css">
+    <style>
+        label {
+            font-size: 12px;
+        }
+    </style>
 </head>
 {% include "includes/sidebar.html" %}
 
-<center>
-    <div class="col-lg-6" style="margin-left:170px;margin-top:60px">
-        <div class="darman" style="width:700px;height:500px;background:#fff;border-radius: 12px;">
-            <img id="cam" src="{{ url_for('rekam') }}" width="650px" height="450px" style="border-radius:12px">
-        </div>
+<div class="container">
+    <div class="daftarKaryawan">
+        <h2>Isi Data Karyawan</h2>
+        <form method="post" action="/daftarKaryawan">
+            <hr>
+            <div>
+                <label for="karyawan">Nama Karyawan</label>
+                <input class="form-control" type="text" name="karyawan" required><br>
+                <label for="email">Email</label>
+                <input class="form-control" type="email" name="email" required><br>
+                <label for="no_telp">No. Telepon</label>
+                <input class="form-control" type="text" name="no_telp" required><br>
+                <label for="alamat">Alamat</label>
+                <input class="form-control" type="text" name="alamat" required><br>
+                <a href="#" style="margin-left:21px;"><br>
+                    <button type="submit" class="btn btn-primary">Rekam Wajah</button>
+                </a>
+            </div>
+        </form>
     </div>
-</center>
+</div>
 
 {% endblock %}

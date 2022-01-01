@@ -1,0 +1,32 @@
+{% extends 'includes/include.html' %}
+{% block content %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../static/css/login.css">
+    </style>
+</head>
+
+<body class="my-login-page">
+    <div class="containers">
+        <div class="bg"></div>
+        <div class="row">
+            {% include 'face.html' %}
+        </div>
+    </div>
+    <div class="icon">
+        <a href="/chatbot">
+        <img src="../static/img/chatbot.png" alt=""></a>
+    </div>
+</body>
+
+</html>
+{% endblock %}

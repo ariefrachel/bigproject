@@ -8,7 +8,7 @@
 
 <div class="container">
     <div class="daftarKaryawan">
-        {% with messages = get_flashed_messages() %}
+        <!-- {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages %}
         <div class="alert alert-success alert-dismissible" role="alert">
@@ -18,29 +18,36 @@
         </div>
         {% endfor %}
         {% endif %}
-        {% endwith %}
-        <form method="post" action="/daftarKaryawan">
-            <div class="d-flex">
-                <input class="form-control" type="text" name="karyawan" placeholder="Nama Karyawan" required>
-                <a href="/tambahData" style="margin-left:21px;">
-                    <button type="submit" class="btn btn-primary">Tambah Data</button>
-                </a>
-            </div>
-        </form>
+        {% endwith %} -->
+        <!-- <input class="form-control" type="text" name="karyawan" placeholder="Nama Karyawan" required> -->
+        <a href="/tambahData" style="margin-left:21px;">
+            <button type="submit" class="btn btn-primary">Tambah Data</button>
+        </a>
         <h3 style="color:#333;margin-top:40px;font-weight:500">Daftar Karyawan</h3>
-        <table style="margin-top:20px" class="table table-striped">
+        <table style="margin-top:20px;" class="table table-striped">
             <thead class="thead-light">
                 <tr>
-                    <th scope="col">Nama Lengkap</th>
+                    <th width="25%">Nama Lengkap</th>
+                    <th width="25%">Email</th>
+                    <th width="20%">No Telepon</th>
+                    <th width="25%">Alamat</th>
+                    <th width="5%">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 {% for data in karyawan %}
                 <tr>
                     <td>{{data.nama_lengkap}}</td>
+                    <td>{{data.email}}</td>
+                    <td>{{data.no_telp}}</td>
+                    <td>{{data.alamat}}</td>
                     <td width="100">
-                        <a href="/hapusTamu/{{data.id}}">
-                            <i style="font-size:16px" class="fa fa-trash text-danger" aria-hidden="true"></i></a>
+                        <div class="d-flex" style="justify-content: space-between">
+                            <a href="#" style="margin-right:32px">
+                                <i style="font-size:16px" class="fa fa-edit text-warning" aria-hidden="true"></i></a>
+                            <a href="/hapusTamu/{{data.id}}">
+                                <i style="font-size:16px" class="fa fa-trash text-danger" aria-hidden="true"></i></a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}

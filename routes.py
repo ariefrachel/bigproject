@@ -133,15 +133,18 @@ def uploadFoto():
 
 @app.route('/daftarKaryawan', methods=["POST", "GET"])
 def daftarKaryawan():
-    karyawan = request.form.get("karyawan")
+    # karyawan = request.form.get("karyawan")
     if request.method == "POST":
-        karyawan = karyawan.strip().capitalize()
-        user_folder = os.path.join(app.config['UPLOAD_FOLDER'], karyawan)
-        os.mkdir(user_folder)
+        # karyawan = karyawan.strip().capitalize()
+        # user_folder = os.path.join(app.config['UPLOAD_FOLDER'], karyawan)
+        # os.mkdir(user_folder)
         # return f"folder is created under the name {karyawan} and the full path is {user_folder}"
         nama_karyawan = request.form['karyawan']
+        email = request.form['email']
+        no_telp = request.form['no_telp']
+        alamat = request.form['alamat']
         cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cur.execute("INSERT INTO karyawan (nama_lengkap) VALUES (%s)", [nama_karyawan])
+        cur.execute("INSERT INTO karyawan (nama_lengkap,email, no_telp, alamat) VALUES (%s,%s,%s,%s)", (nama_karyawan,email, no_telp, alamat))
         mysql.connection.commit()
         flash("Karyawan berhasil ditambahkan")
         return render_template('karyawan.html')
@@ -155,6 +158,10 @@ def karyawan():
   
     cur.close()
     return render_template('karyawan.html', karyawan = data)
+
+@app.route('/tambahData')
+def tambahData():
+    return render_template('tambahData.html')
 
 @app.route('/rekamwajah')
 def rekamwajah():
@@ -371,6 +378,7 @@ def gen_frames():
         input_image_size = 160
         
         HumanNames = os.listdir(train_img)
+        # HumanNames = "Karyawan"
         HumanNames.sort()
 
         print('Loading Modal')
@@ -473,10 +481,10 @@ def gen_frames():
                             # for tamu in range(1):
                             #     break
                             print('Anda Tamu')
-                            video_capture.release()
-                            cv2.destroyAllWindows()
-                            import webbrowser
-                            webbrowser.open_new('http://127.0.0.1:5000/tamu')
+                            # video_capture.release()
+                            # cv2.destroyAllWindows()
+                            # import webbrowser
+                            # webbrowser.open_new('http://127.0.0.1:5000/tamu')
 
             ret, buffer = cv2.imencode('.jpg', frame)
             frames = buffer.tobytes()
