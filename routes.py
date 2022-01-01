@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, request, flash,  jsonify
 from flask_mysqldb import MySQL, MySQLdb
+from preprocess import preprocesses
 import bcrypt
 import werkzeug
 import tensorflow as tf
@@ -107,6 +108,18 @@ def isiTamu():
 @app.route("/face_registration")
 def face_registration():
     return render_template("face_registration.html")
+
+@app.route("/preproses")
+def preproses():
+    input_datadir = './train_img'
+    output_datadir = './pre_img'
+
+    obj=preprocesses(input_datadir,output_datadir)
+    nrof_images_total,nrof_successfully_aligned=obj.collect_data()
+
+    flash('Total number of images: %d' % nrof_images_total)
+    flash('Number of successfully aligned images: %d' % nrof_successfully_aligned)
+    return render_template("preproses.html")
 
 @app.route("/uploadFoto", methods=['POST'])
 def uploadFoto():
@@ -326,8 +339,8 @@ def ajaxfile():
         cursor.close() 
         conn.close()
 
-@app.route("/range",methods=["POST","GET"])
-def range(): 
+@app.route("/jarakTanggal",methods=["POST","GET"])
+def jarakTanggal(): 
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor) 
     if request.method == 'POST':
         From = request.form['From']
@@ -372,14 +385,14 @@ def gen_frames():
         threshold = [0.6, 0.7, 0.7]  # three steps's threshold
         factor = 0.709  # scale factor
         margin = 44
-        frame_interval = 3
+        frame_interval = 2
         batch_size = 1000
         image_size = 182
         input_image_size = 160
         
-        HumanNames = os.listdir(train_img)
-        # HumanNames = "Karyawan"
-        HumanNames.sort()
+        HumanNames = "karyawan"
+        # HumanNames = os.listdir(train_img)
+        # HumanNames.sort()
 
         print('Loading Modal')
         facenet.load_model(modeldir)
@@ -397,6 +410,7 @@ def gen_frames():
         c = 0
         video_capture.set(3, 700) # set video width
         video_capture.set(4, 500) # set video height
+        
 
         print('Start Recognition')
         prevTime = 0
@@ -405,7 +419,7 @@ def gen_frames():
 
             frame = cv2.resize(frame, (0,0), fx=1, fy=1 )    #resize frame (optional)
 
-            curTime = time.time()+1    # calc fps
+            curTime = time.time()+6    # calc fps
             timeF = frame_interval
 
             if (c % timeF == 0):
@@ -468,8 +482,10 @@ def gen_frames():
                                 if HumanNames[best_class_indices[0]] == H_i:
                                     cv2.putText(frame, HumanNames, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                                 1, (0, 0, 255), thickness=1, lineType=2)
-                            # video_capture.release()
+                            # video_capture.release(time(0.5))
                             # cv2.destroyAllWindows()
+                            # import webbrowser
+                            # webbrowser.open_new('http://127.0.0.1:5000/popup')
                         else:
                             tamu = 'Tamu'
                             #plot result idx under box
@@ -481,14 +497,16 @@ def gen_frames():
                             # for tamu in range(1):
                             #     break
                             print('Anda Tamu')
+                            # time.sleep(60)
                             # video_capture.release()
+                            #     # Code executed here
                             # cv2.destroyAllWindows()
                             # import webbrowser
                             # webbrowser.open_new('http://127.0.0.1:5000/tamu')
 
             ret, buffer = cv2.imencode('.jpg', frame)
             frames = buffer.tobytes()
-            yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frames + b'\r\n')      
+            yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frames + b'\r\n')  
 
 @app.route('/video_feed')
 def video_feed():
