@@ -4,6 +4,8 @@ from __future__ import print_function
 from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, request, flash,  jsonify
 from flask_mysqldb import MySQL, MySQLdb
 from preprocess import preprocesses
+import sys
+from classifier import training
 import bcrypt
 import werkzeug
 import tensorflow as tf
@@ -38,11 +40,11 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
-# app.config["TEMPLATES_AUTO_RELOAD"] = True
-# app.config['UPLOAD_FOLDER'] = 'pre_img/'
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config['UPLOAD_FOLDER'] = 'pre_img/'
 
 PATH = '\\'.join(os.path.abspath(__file__).split('\\')[0:-1])
-DATASET_PATH = os.path.join(PATH, "pre_img")
+DATASET_PATH = os.path.join(PATH, "train_img")
 
 @app.route('/')
 def home():
@@ -117,25 +119,33 @@ def preproses():
     obj=preprocesses(input_datadir,output_datadir)
     nrof_images_total,nrof_successfully_aligned=obj.collect_data()
 
-    flash('Total number of images: %d' % nrof_images_total)
-    flash('Number of successfully aligned images: %d' % nrof_successfully_aligned)
-    return render_template("preproses.html")
+    return render_template("proses.html")
+
+@app.route("/trainingKaryawan")
+def trainingKaryawan():
+    datadir = './pre_img'
+    modeldir = './model/20170511-185253.pb'
+    classifier_filename = './class/classifier.pkl'
+    print ("Training Start")
+    obj=training(datadir,modeldir,classifier_filename)
+    get_file=obj.main_train()
+    print('Saved classifier model to file "%s"' % get_file)
+    return render_template("training.html")
+    # sys.exit("All Done")
+    
 
 @app.route("/uploadFoto", methods=['POST'])
 def uploadFoto():
     class_name = request.args.get('class_name')
     path_new_class = os.path.join(DATASET_PATH, class_name)
 
-    # create directory label if not exist
     if not os.path.exists(path_new_class):
         os.mkdir(path_new_class) 
 
-    # save uploaded image
     filename = class_name + '%04d.jpg' % (len(os.listdir(path_new_class)) + 1) 
     file = request.files['webcam']
     file.save(os.path.join(path_new_class, filename))
 
-    # resize
     img = cv2.imread(os.path.join(path_new_class, filename))
     img = cv2.resize(img, (250, 250))
     cv2.imwrite(os.path.join(path_new_class, filename), img)
@@ -160,7 +170,7 @@ def daftarKaryawan():
         cur.execute("INSERT INTO karyawan (nama_lengkap,email, no_telp, alamat) VALUES (%s,%s,%s,%s)", (nama_karyawan,email, no_telp, alamat))
         mysql.connection.commit()
         flash("Karyawan berhasil ditambahkan")
-        return render_template('karyawan.html')
+        return redirect(url_for('face_registration'))
 
 @app.route('/karyawan')
 def karyawan():
@@ -172,6 +182,36 @@ def karyawan():
     cur.close()
     return render_template('karyawan.html', karyawan = data)
 
+@app.route('/editKaryawan/<id>', methods = ['POST', 'GET'])
+def editKaryawan(id):
+    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+  
+    cur.execute('SELECT * FROM karyawan WHERE id = %s', [id])
+    data = cur.fetchall()
+    cur.close()
+    print(data[0])
+    return render_template('editKaryawan.html', editKaryawan = data[0])
+
+@app.route('/updateKaryawan/<id>', methods=['POST'])
+def updatKaryawan(id):
+    if request.method == 'POST':
+        nama = request.form['karyawan']
+        email = request.form['email']
+        no_telp = request.form['no_telp']
+        alamat = request.form['alamat']
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute("""
+            UPDATE karyawan
+            SET nama_lengkap = %s,
+                email = %s,
+                no_telp = %s,
+                alamat = %s
+            WHERE id = %s
+        """, (nama, email, no_telp, alamat, id))
+        flash('Layanan berhasil diupdate')
+        mysql.connection.commit()
+        return redirect(url_for('karyawan'))
+
 @app.route('/tambahData')
 def tambahData():
     return render_template('tambahData.html')
@@ -180,55 +220,55 @@ def tambahData():
 def rekamwajah():
     return render_template("rekam.html")
 
-pth = 'haarcascade_frontalface_default.xml'
-faceCascade = cv2.CascadeClassifier(pth)
+# pth = 'haarcascade_frontalface_default.xml'
+# faceCascade = cv2.CascadeClassifier(pth)
 
-camera = cv2.VideoCapture(0)
+# camera = cv2.VideoCapture(0)
 
-@app.route('/regen')
-def regen():
-    count = 0
-    while True:
-        success, frame = camera.read()
+# @app.route('/regen')
+# def regen():
+#     count = 0
+#     while True:
+#         success, frame = camera.read()
         
-        if not success:
-            break
-        else:
-            count = count + 1
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = faceCascade.detectMultiScale(
-                gray,
-                scaleFactor=1.1,
-                minNeighbors=5,
-                minSize=(30, 30),
-                flags=cv2.CASCADE_SCALE_IMAGE
-            )
-            for (x, y, w, h) in faces:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                cv2.imwrite("pre_img/Don/User." + str(count) + ".jpg", gray[y:y+h,x:x+w])
+#         if not success:
+#             break
+#         else:
+#             count = count + 1
+#             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#             faces = faceCascade.detectMultiScale(
+#                 gray,
+#                 scaleFactor=1.1,
+#                 minNeighbors=5,
+#                 minSize=(30, 30),
+#                 flags=cv2.CASCADE_SCALE_IMAGE
+#             )
+#             for (x, y, w, h) in faces:
+#                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+#                 cv2.imwrite("pre_img/Don/User." + str(count) + ".jpg", gray[y:y+h,x:x+w])
 
-            ret, buffer = cv2.imencode('.jpg', frame)
+#             ret, buffer = cv2.imencode('.jpg', frame)
 
-            k = buffer.tobytes()
+#             k = buffer.tobytes()
 
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + k + b'\r\n')
+#             yield (b'--frame\r\n'
+#                    b'Content-Type: image/jpeg\r\n\r\n' + k + b'\r\n')
 
-            if k == 27:
-                break
-            elif count >= 30:
+#             if k == 27:
+#                 break
+#             elif count >= 30:
                 
-                # import webbrowser
-                # webbrowser.open('http://127.0.0.1:5000/tangkap')
-                break
+#                 # import webbrowser
+#                 # webbrowser.open('http://127.0.0.1:5000/tangkap')
+#                 break
 
-@app.route('/tangkap')
-def tangkap():
-    return render_template("poptambah.html")
+# @app.route('/tangkap')
+# def tangkap():
+#     return render_template("poptambah.html")
 
-@app.route('/rekam')
-def rekam():
-    return Response(regen(), mimetype='multipart/x-mixed-replace; boundary=frame')
+# @app.route('/rekam')
+# def rekam():
+#     return Response(regen(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/tamuHari')
 def tamuHari():
@@ -276,68 +316,13 @@ def tabelTamu():
     totalTamu = cur.fetchall()
     return render_template('dataTamu.html', totalTamu=totalTamu)
 
-@app.route('/warayah')
-def warayah():
-    return render_template('warayah.html')
+@app.route('/popup')
+def popup():
+    return render_template('popUpKaryawan.html')
 
-@app.route("/ajaxfile",methods=["POST","GET"])
-def ajaxfile():
-    try:
-        conn = mysql.connection.cursor()
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        if request.method == 'POST':
-            draw = request.form['draw'] 
-            row = int(request.form['start'])
-            rowperpage = int(request.form['length'])
-            searchValue = request.form["search[value]"]
-            print(draw)
-            print(row)
-            print(rowperpage)
-            print(searchValue)
- 
-            ## Total number of records without filtering
-            cursor.execute("select count(*) as allcount from daftarTamu")
-            rsallcount = cursor.fetchone()
-            totalRecords = rsallcount['allcount']
-            print(totalRecords) 
- 
-            ## Total number of records with filtering
-            likeString = "%" + searchValue +"%"
-            cursor.execute("SELECT count(*) as allcount from daftarTamu WHERE nama_lengkap LIKE %s OR instansi LIKE %s OR no_telp LIKE %s", (likeString, likeString, likeString))
-            rsallcount = cursor.fetchone()
-            totalRecordwithFilter = rsallcount['allcount']
-            print(totalRecordwithFilter) 
- 
-            ## Fetch records
-            if searchValue=='':
-                cursor.execute("SELECT * FROM daftarTamu ORDER BY nama_lengkap asc limit %s, %s;", (row, rowperpage))
-                employeelist = cursor.fetchall()
-            else:        
-                cursor.execute("SELECT * FROM daftarTamu WHERE nama_lengkap LIKE %s OR instansi LIKE %s OR no_telp LIKE %s limit %s, %s;", (likeString, likeString, likeString, row, rowperpage))
-                employeelist = cursor.fetchall()
- 
-            data = []
-            for row in employeelist:
-                data.append({
-                    'tanggal': row['tanggal'],
-                    'nama_lengkap': row['nama_lengkap'],
-                    'instansi': row['instansi'],
-                    'no_telp': row['no_telp'],
-                    'keperluan': row['keperluan'],
-                })
- 
-            response = {
-                'draw': draw,
-                'iTotalRecords': totalRecords,
-                'iTotalDisplayRecords': totalRecordwithFilter,
-                'aaData': data,
-            }
-            return jsonify(response)
-    except Exception as e:
-        print(e)
-    finally:
-        cursor.close() 
-        conn.close()
+@app.route('/popuptambah')
+def popuptambah():
+    return render_template('popUpTambah.html')
 
 @app.route("/jarakTanggal",methods=["POST","GET"])
 def jarakTanggal(): 
@@ -359,8 +344,17 @@ def hapusTamu(id):
   
     cur.execute('DELETE FROM daftarTamu WHERE id = {0}'.format(id))
     mysql.connection.commit()
-    flash('Pesan Masuk Berhasil Dihapus!')
+    flash('Tamu Berhasil Dihapus!')
     return redirect(url_for('tabelTamu'))
+
+@app.route('/hapusKaryawan/<string:id>', methods = ['POST','GET'])
+def hapusKaryawan(id):
+    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+  
+    cur.execute('DELETE FROM karyawan WHERE id = {0}'.format(id))
+    mysql.connection.commit()
+    flash('Karyawan Berhasil Dihapus!')
+    return redirect(url_for('karyawan'))
 
 @app.route('/logout')
 def logout():
@@ -373,7 +367,6 @@ classifier_filename = './class/classifier.pkl'
 npy='./npy'
 train_img="./pre_img"
 
-@app.route('/gen_frames')
 def gen_frames():
     with tf.Graph().as_default():
         gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.6)
@@ -385,14 +378,13 @@ def gen_frames():
         threshold = [0.6, 0.7, 0.7]  # three steps's threshold
         factor = 0.709  # scale factor
         margin = 44
-        frame_interval = 2
+        frame_interval = 3
         batch_size = 1000
         image_size = 182
         input_image_size = 160
         
         HumanNames = "karyawan"
-        # HumanNames = os.listdir(train_img)
-        # HumanNames.sort()
+        #HumanNames.sort()
 
         print('Loading Modal')
         facenet.load_model(modeldir)
@@ -408,9 +400,8 @@ def gen_frames():
 
         video_capture = cv2.VideoCapture(0)
         c = 0
-        video_capture.set(3, 700) # set video width
-        video_capture.set(4, 500) # set video height
-        
+        video_capture.set(3, 800) # set video width
+        video_capture.set(4, 600) # set video height
 
         print('Start Recognition')
         prevTime = 0
@@ -419,7 +410,7 @@ def gen_frames():
 
             frame = cv2.resize(frame, (0,0), fx=1, fy=1 )    #resize frame (optional)
 
-            curTime = time.time()+6    # calc fps
+            curTime = time.time()+1    # calc fps
             timeF = frame_interval
 
             if (c % timeF == 0):
@@ -482,10 +473,6 @@ def gen_frames():
                                 if HumanNames[best_class_indices[0]] == H_i:
                                     cv2.putText(frame, HumanNames, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL,
                                                 1, (0, 0, 255), thickness=1, lineType=2)
-                            # video_capture.release(time(0.5))
-                            # cv2.destroyAllWindows()
-                            # import webbrowser
-                            # webbrowser.open_new('http://127.0.0.1:5000/popup')
                         else:
                             tamu = 'Tamu'
                             #plot result idx under box
@@ -496,17 +483,15 @@ def gen_frames():
 
                             # for tamu in range(1):
                             #     break
-                            print('Anda Tamu')
-                            # time.sleep(60)
-                            # video_capture.release()
-                            #     # Code executed here
-                            # cv2.destroyAllWindows()
                             # import webbrowser
-                            # webbrowser.open_new('http://127.0.0.1:5000/tamu')
+                            # webbrowser.open('templates/form.html')
+                            print('Anda Tamu')
+                            video_capture.release()
+                            cv2.destroyAllWindows()
 
             ret, buffer = cv2.imencode('.jpg', frame)
             frames = buffer.tobytes()
-            yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frames + b'\r\n')  
+            yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frames + b'\r\n')
 
 @app.route('/video_feed')
 def video_feed():

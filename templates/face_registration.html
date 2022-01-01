@@ -9,20 +9,21 @@
 <div class="container">
     <div class="daftarKaryawan">
         <div class="jumbotron">
-            <h3>Take Picture</h3>
+            <h3>Rekam Wajah</h3>
             <div class="row">
                 <div class="col-sm-8 row">
                     <div class="col-sm-12">
                         <div id="my_camera" class="rounded mb-3" style="width:320px; height:240px;"></div>
                     </div>
-                    <div class="col-sm-7">
-                        <input id="class_name" type="text" class="form-control form-control-sm">
+                    <div class="col-sm-12">
+                        <input id="class_name" type="text" placeholder="Nama Lengkap"
+                            class="form-control form-control-sm">
                     </div>
-                    <div class="col-sm-5 text-white">
-                        <a id="open_camera" class="btn btn-info btn-sm">Turn On</span></a>
-                        <a id="capture_photo" class="btn btn-success"><span class="fa fa-camera"></span></a>
-                        <a href="/karyawan" id="close_camera" class="btn btn-danger"><span
-                                class="fa fa-window-close"></span></a>
+                    <div style="margin-top:16px;" class="col-sm-12 text-white">
+                        <a id="open_camera" class="btn btn-dark">Nyalakan Kamera</span></a>
+                        <a style="margin-left:16px;" id="capture_photo" class="btn btn-danger"><span>Rekam</span></a>
+                        <a style="margin-left:16px;" href="/popuptambah" id="close_camera"
+                            class="btn btn-success"><span>Simpan</span></a>
                     </div>
                 </div>
                 <div id="my_result" class="col-sm-7"></div>

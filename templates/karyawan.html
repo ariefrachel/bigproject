@@ -20,9 +20,19 @@
         {% endif %}
         {% endwith %} -->
         <!-- <input class="form-control" type="text" name="karyawan" placeholder="Nama Karyawan" required> -->
-        <a href="/tambahData" style="margin-left:21px;">
-            <button type="submit" class="btn btn-primary">Tambah Data</button>
-        </a>
+        <div class="d-flex" style="justify-content: space-between">
+            <a href="/tambahData" style="margin-left:21px;">
+                <button type="submit" class="btn btn-primary">Tambah Data</button>
+            </a>
+            <div class="d-flex">
+                <a href="/preproses" style="margin-left:21px;">
+                    <button type="submit" class="btn btn-warning">Preprosesing</button>
+                </a>
+                <a href="/trainingKaryawan" style="margin-left:21px;">
+                    <button type="submit" class="btn btn-danger">Training</button>
+                </a>
+            </div>
+        </div>
         <h3 style="color:#333;margin-top:40px;font-weight:500">Daftar Karyawan</h3>
         <table style="margin-top:20px;" class="table table-striped">
             <thead class="thead-light">
@@ -43,9 +53,9 @@
                     <td>{{data.alamat}}</td>
                     <td width="100">
                         <div class="d-flex" style="justify-content: space-between">
-                            <a href="#" style="margin-right:32px">
+                            <a href="/editKaryawan/{{data.id}}" style="margin-right:32px">
                                 <i style="font-size:16px" class="fa fa-edit text-warning" aria-hidden="true"></i></a>
-                            <a href="/hapusTamu/{{data.id}}">
+                            <a href="/hapusKaryawan/{{data.id}}">
                                 <i style="font-size:16px" class="fa fa-trash text-danger" aria-hidden="true"></i></a>
                         </div>
                     </td>
